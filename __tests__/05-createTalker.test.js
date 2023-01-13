@@ -520,6 +520,8 @@ describe('5 - Crie o endpoint POST /talker', () => {
               expect.arrayContaining([expect.objectContaining(postTalkerMock)]),
             );
             const { json } = responseCreate;
+            console.log(json)
+            console.log(postTalkerMock)
             expect(json).toEqual(postTalkerMock);
           });
       });

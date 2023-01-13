@@ -9,9 +9,22 @@ const app = express();
 app.use(express.json());
 
 const HTTP_OK_STATUS = 200;
+const HTTP_CREATE_STATUS = 201;
 const HTTP_NOT_STATUS = 404;
 const HTTP_ERROR_STATUS = 400;
 const PORT = '3000';
+
+const isAutorized = (req, res, next) => {
+  const { authorization } = req.headers;
+  if (!authorization) {
+    return res.status(401).send({ message: 'Token não encontrado' });
+  }
+  console.log(authorization);
+  if (authorization.length !== 16 || typeof (authorization) !== 'string') { 
+    return res.status(401).send({ message: 'Token inválido' });
+   }
+   next();
+};
 
 // não remova esse endpoint, e para o avaliador funcionar
 app.get('/', (_request, response) => {
@@ -36,7 +49,6 @@ app.get('/talker/:id', async (request, response) => {
 }); 
 
 app.post('/login', async (request, response) => {
-  // const data = await JSON.parse(fs.readFileSync(directory));
   const bodyReq = request.body;
   const validatedData = validation.validationData(bodyReq);
   const token = helpers.createToken(16);
@@ -46,6 +58,19 @@ app.post('/login', async (request, response) => {
 }
   return response.status(HTTP_OK_STATUS).send({ token });
 }); 
+
+app.post('/talker', isAutorized, async (request, response) => {
+  const { body } = request;
+  const data = await JSON.parse(fs.readFileSync(directory));
+  const validateTalker = await validation.validationTalker(body);
+  console.log(validateTalker);
+  if (validateTalker.message) {
+    return response.status(HTTP_ERROR_STATUS).send(validateTalker); 
+  }
+  const newData = await helpers.createUser(data, body);
+  await fs.writeFileSync(directory, JSON.stringify([...data, newData]));
+  response.status(HTTP_CREATE_STATUS).send(newData); 
+});
 
 app.listen(PORT, () => {
   console.log('Online');
