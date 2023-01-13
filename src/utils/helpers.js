@@ -27,7 +27,6 @@ const modifyUser = (data, body, params) => {
     newUser.name = name;
     newUser.age = age;
     newUser.talk = talk;
-    console.log(newUser);
     return newUser;
 };
 

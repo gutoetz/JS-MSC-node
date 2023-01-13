@@ -36,6 +36,14 @@ app.get('/talker', async (_request, response) => {
   response.status(HTTP_OK_STATUS).send(data);
 }); 
 
+app.get('/talker/search', isAutorized, async (request, response) => {
+  const { q } = request.query;
+  const data = await JSON.parse(fs.readFileSync(directory));
+  const person = data.filter((e) => e.name.includes(q));
+  if (person.length < 1) return response.status(HTTP_OK_STATUS).send(data);
+  response.status(HTTP_OK_STATUS).send(person); 
+});
+
 app.get('/talker/:id', async (request, response) => {
   const data = await JSON.parse(fs.readFileSync(directory));
   const { id } = request.params;
@@ -91,14 +99,6 @@ app.delete('/talker/:id', isAutorized, async (request, response) => {
   await fs.writeFileSync(directory, JSON.stringify([...newData]));
   response.status(HTTP_DELETE_STATUS).send(); 
 });
-
-// app.delete('/talker/:id', isAutorized, async (request, response) => {
-//   const { params: { id } } = request;
-//   const data = await JSON.parse(fs.readFileSync(directory));
-//   const newData = await data.filter((e) => e.id !== Number(id));
-//   await fs.writeFileSync(directory, JSON.stringify([...newData]));
-//   response.status(HTTP_DELETE_STATUS).send(); 
-// });
 
 app.listen(PORT, () => {
   console.log('Online');
