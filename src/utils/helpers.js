@@ -19,7 +19,20 @@ const createUser = (data, user) => {
     };
     return newUser;
 };
+
+const modifyUser = (data, body, params) => {
+    const { id } = params;
+    const newUser = data.filter((e) => e.id === Number(id))[0];
+    const { name, age, talk } = body;
+    newUser.name = name;
+    newUser.age = age;
+    newUser.talk = talk;
+    console.log(newUser);
+    return newUser;
+};
+
 module.exports = {
     createToken,
     createUser,
+    modifyUser,
 };
